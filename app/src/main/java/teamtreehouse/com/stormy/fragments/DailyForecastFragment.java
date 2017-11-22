@@ -1,8 +1,5 @@
 package teamtreehouse.com.stormy.fragments;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -21,7 +18,6 @@ import butterknife.InjectView;
 import teamtreehouse.com.stormy.R;
 import teamtreehouse.com.stormy.adapters.DayAdapter;
 import teamtreehouse.com.stormy.weather.Day;
-import teamtreehouse.com.stormy.weather.Hour;
 
 public class DailyForecastFragment extends android.support.v4.app.Fragment {
 

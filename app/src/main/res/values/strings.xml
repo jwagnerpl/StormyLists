@@ -11,5 +11,8 @@
     <string name="title_activity_daily_forecast">DailyForecastActivity</string>
     <string name="no_daily_forecast_data">There is no data to display.</string>
     <string name="title_activity_hourly_forecast">HourlyForecastActivity</string>
+    <string name="alcatraz_island_ca">Alcatraz Island, CA</string>
+    <string name="this_week_apos_s_weather">This Week\'s Weather</string>
+    <string name="DailyHourlyForecast"><![CDATA[Daily & Hourly Forecast]]></string>
 
 </resources>

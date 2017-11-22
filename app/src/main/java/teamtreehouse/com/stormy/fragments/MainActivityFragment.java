@@ -1,9 +1,6 @@
 package teamtreehouse.com.stormy.fragments;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -14,30 +11,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import teamtreehouse.com.stormy.R;
-import teamtreehouse.com.stormy.ui.AlertDialogFragment;
-import teamtreehouse.com.stormy.ui.DailyForecastActivity;
-import teamtreehouse.com.stormy.ui.HourlyForecastActivity;
 import teamtreehouse.com.stormy.ui.MainActivity;
 import teamtreehouse.com.stormy.weather.Current;
 import teamtreehouse.com.stormy.weather.Day;
@@ -50,31 +41,26 @@ public class MainActivityFragment extends android.support.v4.app.Fragment {
     public static final String TAG = MainActivity.class.getSimpleName();
     public static final String DAILY_FORECAST = "DAILY_FORECAST";
     public static final String HOURLY_FORECAST = "HOURLY_FORECAST";
-
     private Forecast mForecast;
 
-    @InjectView(R.id.timeLabel)
-    TextView mTimeLabel;
-    @InjectView(R.id.temperatureLabel)
-    TextView mTemperatureLabel;
-    @InjectView(R.id.humidityValue)
-    TextView mHumidityValue;
-    @InjectView(R.id.precipValue)
-    TextView mPrecipValue;
-    @InjectView(R.id.summaryLabel)
-    TextView mSummaryLabel;
-    @InjectView(R.id.iconImageView)
-    ImageView mIconImageView;
-    @InjectView(R.id.refreshImageView)
-    ImageView mRefreshImageView;
-    @InjectView(R.id.progressBar)
-    ProgressBar mProgressBar;
+    @InjectView(R.id.dailyButton) Button dailyButton;
+    @InjectView(R.id.hourlyButton) Button hourlyButton;
+    @InjectView(R.id.timeLabel) TextView mTimeLabel;
+    @InjectView(R.id.temperatureLabel) TextView mTemperatureLabel;
+    @InjectView(R.id.humidityValue) TextView mHumidityValue;
+    @InjectView(R.id.precipValue) TextView mPrecipValue;
+    @InjectView(R.id.summaryLabel) TextView mSummaryLabel;
+    @InjectView(R.id.iconImageView) ImageView mIconImageView;
+    @InjectView(R.id.refreshImageView) ImageView mRefreshImageView;
+    @InjectView(R.id.progressBar) ProgressBar mProgressBar;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.activity_main_fragment, container, false);
         ButterKnife.inject(this, view);
+        setRetainInstance(true);
 
         mProgressBar.setVisibility(View.INVISIBLE);
         final double latitude = 37.8267;
@@ -89,7 +75,10 @@ public class MainActivityFragment extends android.support.v4.app.Fragment {
 
         getForecast(latitude, longitude);
 
-        Log.d(TAG, "Main UI code is running!");
+        if (MainActivity.isTablet) {
+            hourlyButton.setVisibility(View.GONE);
+            dailyButton.setText(R.string.DailyHourlyForecast);
+        }
 
         return view;
     }
@@ -197,39 +186,46 @@ public class MainActivityFragment extends android.support.v4.app.Fragment {
         return current;
     }
 
-
-    private void alertUserAboutError() {
-        AlertDialogFragment dialog = new AlertDialogFragment();
-        //dialog.show(getFragmentManager(), "error_dialog");
-    }
-
     @OnClick(R.id.dailyButton)
     public void startDailyActivity(View view) {
-        android.support.v4.app.Fragment dailyForecastFragment = new DailyForecastFragment();
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArray(DAILY_FORECAST, mForecast.getDailyForecast());
-        dailyForecastFragment.setArguments(bundle);
+        if (!MainActivity.isTablet) {
+            android.support.v4.app.Fragment dailyForecastFragment = new DailyForecastFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArray(DAILY_FORECAST, mForecast.getDailyForecast());
+            dailyForecastFragment.setArguments(bundle);
+            FragmentManager fm = getFragmentManager();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.replace(R.id.placeHolder, dailyForecastFragment).commit();
+        }
 
-        FragmentManager fm = getFragmentManager();
-        android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.replace(R.id.placeHolder, dailyForecastFragment).commit();
+        else {
+            android.support.v4.app.Fragment dualPaneFragment = new DualPaneFragment();
+            android.support.v4.app.Fragment dailyForecastFragment = new DailyForecastFragment();
+            android.support.v4.app.Fragment hourlyForecastFragment = new HourlyForecastFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArray(HOURLY_FORECAST, mForecast.getHourlyForecast());
+            bundle.putParcelableArray(DAILY_FORECAST, mForecast.getDailyForecast());
+            dailyForecastFragment.setArguments(bundle);
+            hourlyForecastFragment.setArguments(bundle);
+            FragmentManager fm = getFragmentManager();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.placeHolder, dualPaneFragment);
+            fragmentTransaction.replace(R.id.rightPlaceholder, hourlyForecastFragment).replace(R.id.leftPlaceholder, dailyForecastFragment).addToBackStack(null).commit();
+        }
     }
 
-    @OnClick (R.id.hourlyButton)
+    @OnClick(R.id.hourlyButton)
     public void startHourlyActivity(View view) {
-        /*Intent intent = new Intent(this, HourlyForecastActivity.class);
-        intent.putExtra(HOURLY_FORECAST, mForecast.getHourlyForecast());
-        startActivity(intent);*/
 
         android.support.v4.app.Fragment hourlyForecastFragment = new HourlyForecastFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelableArray(HOURLY_FORECAST, mForecast.getHourlyForecast());
         hourlyForecastFragment.setArguments(bundle);
-
         FragmentManager fm = getFragmentManager();
         android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.replace(R.id.placeHolder, hourlyForecastFragment).commit();
-
     }
 
     public void getForecast(double latitude, double longitude) {
@@ -255,7 +251,7 @@ public class MainActivityFragment extends android.support.v4.app.Fragment {
                             toggleRefresh();
                         }
                     });
-                    alertUserAboutError();
+                    //mainActivity.alertUserAboutError();
                 }
 
                 @Override
@@ -279,24 +275,20 @@ public class MainActivityFragment extends android.support.v4.app.Fragment {
                                 }
                             });
                         } else {
-                            alertUserAboutError();
+                            //alertUserAboutError();
                         }
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         Log.e(TAG, "Exception caught: ", e);
-                    }
-                    catch (JSONException e) {
+                    } catch (JSONException e) {
                         Log.e(TAG, "Exception caught: ", e);
                     }
                 }
             });
-        }
-        else {
+        } else {
             Toast.makeText(getContext(), getString(R.string.network_unavailable_message),
                     Toast.LENGTH_LONG).show();
         }
     }
-
 
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);

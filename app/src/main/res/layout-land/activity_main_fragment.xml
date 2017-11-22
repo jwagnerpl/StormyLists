@@ -6,7 +6,6 @@
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:background="@drawable/bg_gradient">
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,14 +27,14 @@
         android:layout_marginTop="50dp"/>
 
     <TextView
+        android:id="@+id/timeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="..."
-        android:id="@+id/timeLabel"
         android:layout_above="@+id/degreeImageView"
         android:layout_centerHorizontal="true"
+        android:text="..."
         android:textColor="#80ffffff"
-        android:textSize="18sp"/>
+        android:textSize="18sp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -61,11 +60,12 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/temperatureLabel"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
         android:weightSum="100"
-        android:id="@+id/linearLayout">
+        android:id="@+id/linearLayout"
+        android:layout_above="@+id/linearLayout2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="32dp">
 
         <LinearLayout
             android:orientation="vertical"
@@ -117,16 +117,17 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/summaryLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
         android:text="Getting current weather..."
-        android:id="@+id/summaryLabel"
-        android:layout_centerHorizontal="true"
-        android:textAlignment="center"
-        android:layout_marginTop="40dp"
         android:textColor="@android:color/white"
         android:textSize="18dp"
-        android:gravity="center_horizontal"/>
+        android:layout_below="@+id/timeLabel"
+        android:layout_alignRight="@+id/locationLabel"
+        android:layout_alignEnd="@+id/locationLabel" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -140,9 +141,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_alignBottom="@+id/refreshImageView"/>
+        android:layout_below="@+id/iconImageView"
+        android:layout_centerHorizontal="true" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -150,7 +150,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:id="@+id/linearLayout2">
 
         <Button
             android:layout_width="match_parent"

@@ -34,7 +34,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/this_week_apos_s_weather"
+        android:text="This Week&apos;s Weather"
         android:id="@+id/thisWeekLabel"
         android:textColor="#ffffffff"
         android:textSize="30sp"
@@ -48,7 +48,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/alcatraz_island_ca"
+        android:text="Alcatraz Island, CA"
         android:id="@+id/locationLabel"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"

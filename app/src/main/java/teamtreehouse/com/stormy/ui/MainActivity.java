@@ -1,6 +1,5 @@
 package teamtreehouse.com.stormy.ui;
 
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -9,11 +8,9 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -31,7 +28,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import teamtreehouse.com.stormy.R;
@@ -42,8 +38,6 @@ import teamtreehouse.com.stormy.weather.Day;
 import teamtreehouse.com.stormy.weather.Forecast;
 import teamtreehouse.com.stormy.weather.Hour;
 
-import static android.R.attr.fragment;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
     public static final String DAILY_FORECAST = "DAILY_FORECAST";
     public static final String HOURLY_FORECAST = "HOURLY_FORECAST";
-
+    public static boolean isTablet;
     private Forecast mForecast;
 
     @InjectView(R.id.timeLabel) TextView mTimeLabel;
@@ -67,26 +61,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        isTablet = getResources().getBoolean(R.bool.is_Tablet);
 
-        /*
-        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.placeHolder);
-        sectionsStatePagerAdapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
-        MainActivityFragment maf = new MainActivityFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.placeHolder, maf ).commit();
-        */
+        if (!isTablet) {
+            createMainFrag(savedInstanceState);
 
-        Fragment fragment = new MainActivityFragment();
-        FragmentManager fm = getSupportFragmentManager();
-        android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.add(R.id.placeHolder, fragment).commit();
+        } else {
+            createMainFrag(savedInstanceState);
+        }
     }
 
-    private void setupFrameLayout(FrameLayout frameLayout){
-        SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        MainActivityFragment maf = new MainActivityFragment();
-        //transaction.add(R.id.placeHolder, maf.get);
-        transaction.commit();
+    private void createMainFrag(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            Fragment mainFragment = new MainActivityFragment();
+            FragmentManager fm = getSupportFragmentManager();
+            android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.placeHolder, mainFragment).commit();
+        }
     }
 
     public void getForecast(double latitude, double longitude) {
@@ -138,17 +129,14 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             alertUserAboutError();
                         }
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         Log.e(TAG, "Exception caught: ", e);
-                    }
-                    catch (JSONException e) {
+                    } catch (JSONException e) {
                         Log.e(TAG, "Exception caught: ", e);
                     }
                 }
             });
-        }
-        else {
+        } else {
             Toast.makeText(this, getString(R.string.network_unavailable_message),
                     Toast.LENGTH_LONG).show();
         }
@@ -158,8 +146,7 @@ public class MainActivity extends AppCompatActivity {
         if (mProgressBar.getVisibility() == View.INVISIBLE) {
             mProgressBar.setVisibility(View.VISIBLE);
             mRefreshImageView.setVisibility(View.INVISIBLE);
-        }
-        else {
+        } else {
             mProgressBar.setVisibility(View.INVISIBLE);
             mRefreshImageView.setVisibility(View.VISIBLE);
         }
@@ -276,18 +263,13 @@ public class MainActivity extends AppCompatActivity {
         dialog.show(getFragmentManager(), "error_dialog");
     }
 
-    @OnClick (R.id.dailyButton)
-    public void startDailyActivity(View view) {
-        Intent intent = new Intent(this, DailyForecastActivity.class);
-        intent.putExtra(DAILY_FORECAST, mForecast.getDailyForecast());
-        startActivity(intent);
-    }
-
-    @OnClick (R.id.hourlyButton)
-    public void startHourlyActivity(View view) {
-        Intent intent = new Intent(this, HourlyForecastActivity.class);
-        intent.putExtra(HOURLY_FORECAST, mForecast.getHourlyForecast());
-        startActivity(intent);
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
 
